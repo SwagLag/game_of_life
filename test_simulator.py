@@ -44,3 +44,56 @@ class TestSimulator(TestCase):
         self.sim.set_world(world)
         self.assertIsInstance(self.sim.get_world(), World)
         self.assertIs(self.sim.get_world(), world)
+
+    def test_underpopulation(self):
+        """
+        Evaluates a scenario in which a cell would die as if by underpopulation.
+        """
+        world = World(10)
+        self.sim.set_world(world)
+        coords = [(5,5),(5,6)]
+        for coord in coords:
+            self.sim.get_world().set(coord[0],coord[1])
+        self.sim.update()
+        self.assertEqual(self.sim.get_world().get(5, 5), 0, "Cell should be dead")
+        self.assertEqual(self.sim.get_world().get(5, 6), 0, "Cell should be dead")
+
+    def test_nothinghappens(self):
+        """
+        Evaluates a scenario in which nothing should happen.
+        """
+        world = World(10)
+        self.sim.set_world(world)
+        coords = [(2,2),(2,3),(3,2),(3,3)]
+        for coord in coords:
+            self.sim.get_world().set(coord[0],coord[1])
+        self.sim.update()
+        self.assertEqual(self.sim.get_world().get(2, 2), 1, "Cell should be alive")
+        self.assertEqual(self.sim.get_world().get(2, 3), 1, "Cell should be alive")
+        self.assertEqual(self.sim.get_world().get(3, 2), 1, "Cell should be alive")
+        self.assertEqual(self.sim.get_world().get(3, 3), 1, "Cell should be alive")
+
+    def test_overpopulation(self):
+        """
+        Evaluates a scenario in which a cell should die.
+        """
+        world = World(10)
+        self.sim.set_world(world)
+        coords = [(2,2),(3,2),(4,2),(3,3),(3,1)]  # Star shape, atleast the center should die.
+        for coord in coords:
+            self.sim.get_world().set(coord[0],coord[1])
+        self.sim.update()
+        self.assertEqual(self.sim.get_world().get(3,2),0,"Cell should be dead")
+
+    def test_reproduction(self):
+        """
+        Evaluates a scenario in which a cell should become alive (from being dead)
+        """
+        world = World(10)
+        self.sim.set_world(world)
+        coords = [(3,3),(3,4),(3,5)]
+        for coord in coords:
+            self.sim.get_world().set(coord[0],coord[1])
+        self.sim.update()
+        self.assertEqual(self.sim.get_world().get(2, 4), 1, "Cell should be alive")
+        self.assertEqual(self.sim.get_world().get(4, 4), 1, "Cell should be alive")
