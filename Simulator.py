@@ -26,7 +26,28 @@ class Simulator:
         """
         self.generation += 1
 
-        #TODO: Do something to evolve the generation
+        # Iterate over all the cells.
+        newworld = World(self.world.width, self.world.height)
+
+        for x in range(self.world.width):
+            for y in range(self.world.height):
+                neighbors = self.world.get_neighbours(x, y)  # In beide gevallen wordt er gekeken naar buren, hier kan dat dus al.
+                # We gaan er trouwens ook vanuit dat dode cellen gelijk staan aan 0 een levende aan 1. Dan kunnen we de sum van
+                # elke lijst ophalen en kijken hoeveel levende cellen er zijn.
+                if self.world.get(x,y) == 0:  # Cel is dood
+                    if sum(neighbors) == 3:  # Moet er precies drie zijn!!
+                        newworld.set(x,y,1)
+                    else:
+                        newworld.set(x,y,0)
+                elif self.world.get(x,y) == 1:  # Cel is levend.
+                    if sum(neighbors) < 2:  # Een cel met minder dan twee levende buren gaat dood.
+                        newworld.set(x,y,0)
+                    elif sum(neighbors) > 3:  # Een cel met meer dan drie levende buren gaat dood.
+                        newworld.set(x,y,0)
+                    else:
+                        newworld.set(x,y,1)
+
+        self.world = newworld
 
         return self.world
 
