@@ -37,14 +37,14 @@ class Simulator:
                 if self.world.get(x,y) == 0:  # Cel is dood
                     if sum(neighbors) == 3:  # Moet er precies drie zijn!!
                         newworld.set(x,y,1)
-                    else:
+                    else:  # Anders gebeurt er niks.
                         newworld.set(x,y,0)
                 elif self.world.get(x,y) == 1:  # Cel is levend.
                     if sum(neighbors) < 2:  # Een cel met minder dan twee levende buren gaat dood.
                         newworld.set(x,y,0)
                     elif sum(neighbors) > 3:  # Een cel met meer dan drie levende buren gaat dood.
                         newworld.set(x,y,0)
-                    else:
+                    else:  # Anders gebeurt er niks.
                         newworld.set(x,y,1)
 
         self.world = newworld
