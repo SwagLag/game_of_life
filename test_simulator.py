@@ -97,3 +97,17 @@ class TestSimulator(TestCase):
         self.sim.update()
         self.assertEqual(self.sim.get_world().get(2, 4), 1, "Cell should be alive")
         self.assertEqual(self.sim.get_world().get(4, 4), 1, "Cell should be alive")
+
+    def test_custom_rules(self):
+        """Tests a scenario in which custom rules were implemented"""
+        world = World(10)
+        self.sim = Simulator(None,2,1)  # Override, this is a custom scenario.
+        # In this scenario, birth can only occur with 2 neighboring cells and survival with 1 neighboring cell.
+        coords = [(3,3),(4,3)]
+        for coord in coords:
+            self.sim.get_world().set(coord[0],coord[1])
+        self.sim.update()
+        self.assertEqual(self.sim.get_world().get(3, 3), 1, "Cell should be alive")
+        self.assertEqual(self.sim.get_world().get(4, 3), 1, "Cell should be alive")
+        self.assertEqual(self.sim.get_world().get(3, 4), 1, "Cell should be alive")
+        self.assertEqual(self.sim.get_world().get(4, 4), 1, "Cell should be alive")

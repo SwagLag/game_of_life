@@ -6,7 +6,7 @@ class Simulator:
     Read https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life for an introduction to Conway's Game of Life.
     """
 
-    def __init__(self, world = None):
+    def __init__(self, world = None, birth = [3], survival = [2,3]):
         """
         Constructor for Game of Life simulator.
 
@@ -17,6 +17,9 @@ class Simulator:
             self.world = World(20)
         else:
             self.world = world
+
+        self.birth = birth
+        self.survival = survival
 
     def update(self) -> World:
         """
@@ -34,18 +37,23 @@ class Simulator:
                 neighbors = self.world.get_neighbours(x, y)  # In beide gevallen wordt er gekeken naar buren, hier kan dat dus al.
                 # We gaan er trouwens ook vanuit dat dode cellen gelijk staan aan 0 een levende aan 1. Dan kunnen we de sum van
                 # elke lijst ophalen en kijken hoeveel levende cellen er zijn.
+                neighborcount = sum(neighbors)
                 if self.world.get(x,y) == 0:  # Cel is dood
-                    if sum(neighbors) == 3:  # Moet er precies drie zijn!!
+                    if int(neighborcount) in self.birth:
                         newworld.set(x,y,1)
+                    # if sum(neighbors) == 3:  # Moet er precies drie zijn!!
+                    #     newworld.set(x,y,1)
                     else:  # Anders gebeurt er niks.
                         newworld.set(x,y,0)
                 elif self.world.get(x,y) == 1:  # Cel is levend.
-                    if sum(neighbors) < 2:  # Een cel met minder dan twee levende buren gaat dood.
-                        newworld.set(x,y,0)
-                    elif sum(neighbors) > 3:  # Een cel met meer dan drie levende buren gaat dood.
-                        newworld.set(x,y,0)
-                    else:  # Anders gebeurt er niks.
+                    if int(neighborcount) in self.survival:
                         newworld.set(x,y,1)
+                    # if sum(neighbors) < 2:  # Een cel met minder dan twee levende buren gaat dood.
+                    #     newworld.set(x,y,0)
+                    # elif sum(neighbors) > 3:  # Een cel met meer dan drie levende buren gaat dood.
+                    #     newworld.set(x,y,0)
+                    else:  # Anders gebeurt er niks.
+                        newworld.set(x,y,0)
 
         self.world = newworld
 
