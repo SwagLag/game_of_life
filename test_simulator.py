@@ -101,7 +101,7 @@ class TestSimulator(TestCase):
     def test_custom_rules(self):
         """Tests a scenario in which custom rules were implemented"""
         world = World(10)
-        self.sim = Simulator(None,2,1)  # Override, this is a custom scenario.
+        self.sim = Simulator(world,[2],[1])  # Override, this is a custom scenario.
         # In this scenario, birth can only occur with 2 neighboring cells and survival with 1 neighboring cell.
         coords = [(3,3),(4,3)]
         for coord in coords:
@@ -111,3 +111,38 @@ class TestSimulator(TestCase):
         self.assertEqual(self.sim.get_world().get(4, 3), 1, "Cell should be alive")
         self.assertEqual(self.sim.get_world().get(3, 4), 1, "Cell should be alive")
         self.assertEqual(self.sim.get_world().get(4, 4), 1, "Cell should be alive")
+
+        # TODO: Maak deze test gelijk aan de andere tests maar dan met andere regels.
+
+    def test_birth_rules(self):
+        """Tests a scenario in which custom **age** rules are implemented;
+        checking if the decay works."""
+        world = World(10)
+        self.sim = Simulator(world=world,birth=[10],survival=[9],age=6)
+        coords = [(3,3),(4,3),(5,3),(4,4),(4,2)]
+        for coord in coords:
+            self.sim.get_world().set(coord[0],coord[1])
+        self.sim.update()
+        self.sim.update()
+        # Assume that any of the cells - due to not satisfying the survival constraint - have each subtracted
+        # one from their age value.
+        self.assertEqual(self.sim.get_world().get(4,3), 4, "Cell should have subtracted 1 from age value.")
+        self.sim.survival = [1]  # Override.
+        self.sim.update()
+        # Now that the survival conditions are laughably easy, we assume they kept their value.
+        self.assertEqual(self.sim.get_world().get(4,3), 4, "Cell should have same age value as previous gen.")
+        self.sim.birth = [1]
+        self.sim.get_world().set(8,8)
+        # Now that the age of our original cells are within the 'birth' range (0+2 and age param - 2), we
+        # can assume that new cells form around the original cells, but not around the cell we just defined.
+        self.sim.update()
+
+        self.assertEqual(self.sim.get_world().get(7, 8), 0, "Cell should be dead.")
+        self.assertEqual(self.sim.get_world().get(9, 8), 0, "Cell should be dead.")
+        self.assertEqual(self.sim.get_world().get(8, 9), 0, "Cell should be dead.")
+        self.assertEqual(self.sim.get_world().get(8, 7), 0, "Cell should be dead.")
+
+        self.assertEqual(self.sim.get_world().get(3, 2), 6, "Cell should be alive (at age factor value)")
+        self.assertEqual(self.sim.get_world().get(3, 4), 6, "Cell should be alive (at age factor value)")
+        self.assertEqual(self.sim.get_world().get(5, 2), 6, "Cell should be alive (at age factor value)")
+        self.assertEqual(self.sim.get_world().get(5, 4), 6, "Cell should be alive (at age factor value)")
