@@ -121,18 +121,18 @@ class TestSimulator(TestCase):
         self.sim = Simulator(world=world,birth=[10],survival=[9],age=6)
         coords = [(3,3),(4,3),(5,3),(4,4),(4,2)]
         for coord in coords:
-            self.sim.get_world().set(coord[0],coord[1])
+            self.sim.get_world().set(coord[0],coord[1],6)
         self.sim.update()
         self.sim.update()
         # Assume that any of the cells - due to not satisfying the survival constraint - have each subtracted
         # one from their age value.
         self.assertEqual(self.sim.get_world().get(4,3), 4, "Cell should have subtracted 1 from age value.")
-        self.sim.survival = [1]  # Override.
+        self.sim.survival = [1,2,3,4]  # Override.
         self.sim.update()
         # Now that the survival conditions are laughably easy, we assume they kept their value.
         self.assertEqual(self.sim.get_world().get(4,3), 4, "Cell should have same age value as previous gen.")
-        self.sim.birth = [1]
-        self.sim.get_world().set(8,8)
+        self.sim.birth = [1,2,3,4]
+        self.sim.get_world().set(8,8,6)
         # Now that the age of our original cells are within the 'birth' range (0+2 and age param - 2), we
         # can assume that new cells form around the original cells, but not around the cell we just defined.
         self.sim.update()

@@ -1,3 +1,4 @@
+import pandas
 from World import *
 
 class Simulator:
@@ -13,7 +14,7 @@ class Simulator:
         :param world: (optional) environment used to simulate Game of Life.
         """
         self.generation = 0
-        if world == None:
+        if world is None:
             self.world = World(20)
         else:
             self.world = world
@@ -34,33 +35,50 @@ class Simulator:
         newworld = World(self.world.width, self.world.height)
 
         # Determine if age rules are implemented.
+
         if self.age is None:
-            birthvalue = 1
-            deadvalue = 0
-        elif self.age is not None:
-            birthvalue = self.age - 2
-            deadvalue = 0 + 2
+            birthval = 1
+
+        if self.age is not None:  # If age **is** implemented;
+            birthval = self.age
+            if self.age >= 4:
+                fertilestart = self.age - 2
+                fertileend = 2
+            else:
+                fertilestart = self.age
+                fertileend = 0
 
         for x in range(self.world.width):
             for y in range(self.world.height):
                 neighbors = self.world.get_neighbours(x, y)  # Haal de buren op van een cel.
-                neighborcount = sum(neighbors)
+                neighborcount = 0  # Cellen boven de leeftijd 0.
+                breedingneighborcount = 0  # Cellen uit neighbors waarvan de leeftijd >= is dan fertileend en <= dan fertilestart.
+
+                for i in neighbors:
+                    if i > 0:
+                        neighborcount += 1
+
+                if self.age is None:
+                    for j in neighbors:
+                        if j > 0:
+                            breedingneighborcount += 1
+
+                if self.age is not None:
+                    for j in neighbors:
+                        if fertilestart >= j >= fertileend:
+                            breedingneighborcount += 1
+
                 if self.world.get(x,y) == 0:  # Cel is dood
-                    if neighborcount in self.birth:
-                        newworld.set(x,y,1)
-                    # if sum(neighbors) == 3:  # Moet er precies drie zijn!!
-                    #     newworld.set(x,y,1)
+                    if breedingneighborcount in self.birth:
+                        newworld.set(x,y,birthval)
                     else:  # Anders gebeurt er niks.
                         newworld.set(x,y,0)
-                elif self.world.get(x,y) == 1:  # Cel is levend.
-                    if neighborcount in self.survival:
-                        newworld.set(x,y,1)
-                    # if sum(neighbors) < 2:  # Een cel met minder dan twee levende buren gaat dood.
-                    #     newworld.set(x,y,0)
-                    # elif sum(neighbors) > 3:  # Een cel met meer dan drie levende buren gaat dood.
-                    #     newworld.set(x,y,0)
-                    else:  # Anders gebeurt er niks.
-                        newworld.set(x,y,0)
+
+                elif self.world.get(x,y) > 0:  # Cel is levend.
+                    if neighborcount in self.survival:  # Als de cel overleeft;
+                        newworld.set(x,y,self.world.get(x,y) )  # Behoud de
+                    else:  # Anders; tel 1 af van de age.
+                        newworld.set(x,y,self.world.get(x,y) - 1)
 
         self.world = newworld
 
